@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/sdk:2.1
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1-bionic
 
 # Trigger first run experience by running arbitrary cmd to populate local package cache
 RUN dotnet help
@@ -19,3 +19,17 @@ RUN apt-get install -y unzip \
     && unzip sonar-scanner-msbuild-$SONAR_SCANNER_MSBUILD_VERSION-netcoreapp$DOTNETCORE_APP.zip -d /sonar-scanner \
     && rm sonar-scanner-msbuild-$SONAR_SCANNER_MSBUILD_VERSION-netcoreapp$DOTNETCORE_APP.zip \
     && chmod +x -R /sonar-scanner
+
+# Install all necessary additional software (utils, jre)
+RUN apt-get install -y \
+        openjdk-11-jre \
+        apt-transport-https \
+        ca-certificates \
+        curl \
+        gnupg-agent \
+        software-properties-common
+
+# Cleanup
+RUN apt-get -q autoremove \
+    && apt-get -q clean -y \
+    && rm -rf /var/lib/apt/lists/* /var/cache/apt/*.bin
